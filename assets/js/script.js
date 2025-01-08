@@ -97,7 +97,9 @@ function setupLogistaDashboard(){
     const deliveredList = document.getElementById('delivered-list');
     const tabs = document.querySelectorAll('.tabs .tab');
     const tabContents = document.querySelectorAll('.tab-content');
-
+  let unsubscribePending = null
+  let unsubscribeAccepted = null
+  let unsubscribeDelivered = null
     // Funcao do botao de chamar entregador
     newOrderForm.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -125,7 +127,8 @@ function setupLogistaDashboard(){
     // Funçao de atualizar a lista de pedidos
     function updateOrderList(status, listElement){
         const q = query(collection(db, "orders"), where("logistaId", "==", auth.currentUser.uid), where("status", "==", status));
-        onSnapshot(q, (querySnapshot) => {
+         let unsubscribe = onSnapshot(q, (querySnapshot) => {
+               console.log(`Snapshot recebido para o status ${status}`, querySnapshot)
              listElement.innerHTML = '';
                 querySnapshot.forEach((doc) => {
                 const order = doc.data();
@@ -152,21 +155,37 @@ function setupLogistaDashboard(){
              listElement.appendChild(orderItem);
              });
         });
+      return unsubscribe
     }
-   
-    updateOrderList('pending', pendingList)
-    updateOrderList('accepted', acceptedList)
-    updateOrderList('delivered', deliveredList)
+      if(unsubscribePending){
+      unsubscribePending()
+        }
+      if(unsubscribeAccepted){
+      unsubscribeAccepted()
+        }
+     if(unsubscribeDelivered){
+      unsubscribeDelivered()
+        }
+    unsubscribePending = updateOrderList('pending', pendingList)
+    unsubscribeAccepted = updateOrderList('accepted', acceptedList)
+    unsubscribeDelivered = updateOrderList('delivered', deliveredList)
    //Logica das abas de pedido
     tabs.forEach(tab => {
         tab.addEventListener('click', function () {
-        const tabId = this.getAttribute('data-tab');
-
-        tabs.forEach(t => t.classList.remove('active'));
-        tabContents.forEach(content => content.classList.remove('active'));
-        
-        this.classList.add('active');
-        document.getElementById(tabId).classList.add('active');
+          if(unsubscribePending){
+            unsubscribePending()
+          }
+          if(unsubscribeAccepted){
+            unsubscribeAccepted()
+          }
+         if(unsubscribeDelivered){
+            unsubscribeDelivered()
+          }
+          const tabId = this.getAttribute('data-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
         });
     });
 }
@@ -175,14 +194,17 @@ function setupLogistaDashboard(){
 function setupEntregadorDashboard() {
     const availableOrdersList = document.getElementById('available-orders');
     const myOrdersList = document.getElementById('my-orders');
-
+    let unsubscribeAvailableOrders = null
+    let unsubscribeMyOrders = null
       // Atualiza lista de entregas disponiveis
     function updateAvailableOrders(){
         const q = query(collection(db, "orders"), where("status", "==", "pending"));
-        onSnapshot(q, (querySnapshot) => {
+         let unsubscribe = onSnapshot(q, (querySnapshot) => {
+            console.log('Snapshot da lista de pedidos disponíveis:', querySnapshot);
                 availableOrdersList.innerHTML = '';
                 querySnapshot.forEach((doc) => {
-                const order = doc.data();
+                    const order = doc.data();
+                    console.log('Pedido encontrado:', order);
                 const orderItem = document.createElement('li');
                 const orderInfoDiv = document.createElement('div')
                 orderInfoDiv.classList.add('order-info')
@@ -194,21 +216,22 @@ function setupEntregadorDashboard() {
                 orderInfoDiv.appendChild(orderComplement)
                 orderItem.appendChild(orderInfoDiv)
 
-                const acceptButton = document.createElement('button');
-                acceptButton.textContent = "Aceitar";
-                acceptButton.classList.add('accept-btn');
-                acceptButton.addEventListener('click', function() {
-                    acceptDelivery(doc.id);
-                });
-                orderItem.appendChild(acceptButton);
-                availableOrdersList.appendChild(orderItem);
+                    const acceptButton = document.createElement('button');
+                    acceptButton.textContent = "Aceitar";
+                    acceptButton.classList.add('accept-btn');
+                    acceptButton.addEventListener('click', function() {
+                        acceptDelivery(doc.id);
+                    });
+                    orderItem.appendChild(acceptButton);
+                    availableOrdersList.appendChild(orderItem);
                 });
         });
+      return unsubscribe
     }
     //Atualiza minhas entregas
     function updateMyOrders(){
         const q = query(collection(db, "orders"), where("acceptedBy", "==", auth.currentUser.uid));
-          onSnapshot(q, (querySnapshot) => {
+        let unsubscribe = onSnapshot(q, (querySnapshot) => {
                  myOrdersList.innerHTML = '';
                 querySnapshot.forEach((doc) => {
                     const order = doc.data();
@@ -231,11 +254,17 @@ function setupEntregadorDashboard() {
                      orderItem.appendChild(dropButton);
                     myOrdersList.appendChild(orderItem);
                 });
-          });
+        });
+      return unsubscribe
     }
-
-    updateAvailableOrders()
-    updateMyOrders()
+      if(unsubscribeAvailableOrders){
+      unsubscribeAvailableOrders()
+      }
+      if(unsubscribeMyOrders){
+      unsubscribeMyOrders()
+      }
+      unsubscribeAvailableOrders = updateAvailableOrders()
+      unsubscribeMyOrders = updateMyOrders()
 
     // Funcao de aceitar entrega
     function acceptDelivery(orderId) {
