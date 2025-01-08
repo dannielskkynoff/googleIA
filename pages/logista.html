@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Logista</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="container">
+        <div class="dashboard">
+            <header class="dashboard-header">
+                <h1>Painel do Logista</h1>
+                <button id="logout-btn">Sair</button>
+            </header>
+            <div class="order-section">
+                <h2>Nova Encomenda</h2>
+                <form id="new-order-form">
+                    <div class="input-group">
+                        <label for="client-address">Endereço do Cliente</label>
+                        <input type="text" id="client-address" placeholder="Rua, Número, Bairro" required>
+                    </div>
+                     <div class="input-group">
+                        <label for="client-complement">Complemento (Opcional)</label>
+                        <input type="text" id="client-complement" placeholder="Apartamento, Bloco, etc.">
+                    </div>
+                    <button type="submit" id="call-delivery-btn">Chamar Entregador</button>
+                </form>
+            </div>
+            <div class="order-section">
+                <h2>Status das Encomendas</h2>
+                <div class="tabs">
+                   <button class="tab active" data-tab="pending">Pendentes</button>
+                   <button class="tab" data-tab="accepted">Aceitas</button>
+                   <button class="tab" data-tab="delivered">Entregues</button>
+                </div>
+                <div class="tab-content active" id="pending">
+                    <ul class="order-list" id="pending-list">
+                      <!-- Lista de encomendas pendentes -->
+                    </ul>
+                </div>
+                <div class="tab-content" id="accepted">
+                   <ul class="order-list" id="accepted-list">
+                      <!-- Lista de encomendas aceitas -->
+                    </ul>
+                </div>
+                <div class="tab-content" id="delivered">
+                    <ul class="order-list" id="delivered-list">
+                       <!-- Lista de encomendas entregues -->
+                    </ul>
+               </div>
+            </div>
+        </div>
+    </div>
+    <script src="../assets/js/script.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js"></script>
+</body>
+</html>
