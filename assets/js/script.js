@@ -25,62 +25,68 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if(loginForm){
        loginForm.addEventListener('submit', function (event) {
-        event.preventDefault();
-        
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-  
-        signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                console.log("Usuário logado:", user);
-              //Verifica se o usuário é um logista ou entregador e redireciona
-                checkUserRole(user);
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                const errorMessageText = error.message;
-                console.error("Erro ao logar:", errorCode, errorMessageText);
-                errorMessage.textContent = 'Credenciais inválidas. Tente novamente.';
-            });
-    });
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+      
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    console.log("Usuário logado:", user);
+                  //Verifica se o usuário é um logista ou entregador e redireciona
+                    checkUserRole(user);
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessageText = error.message;
+                    console.error("Erro ao logar:", errorCode, errorMessageText);
+                    errorMessage.textContent = 'Credenciais inválidas. Tente novamente.';
+                });
+        });
     }
-   if (logoutButton) {
-       logoutButton.addEventListener('click', function () {
-           console.log('Botão de sair clicado.'); // Verificando se o botão está sendo clicado
-           signOut(auth).then(() => {
-               console.log('Usuário deslogado (dentro do then)');
-               window.location.href = "../pages/login.html";
-           }).catch((error) => {
-               console.error('Erro ao deslogar:', error);
-           });
-       });
-   }
-
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-            console.log('Usuário está logado:', user);
-          checkUserRole(user)
-      } else {
-          console.log('Usuário não está logado (dentro do onAuthStateChanged).');
-      }
-    });
-
-function checkUserRole(user) {
-        if (user.email.includes("logista")) {
-          window.location.href = "../pages/logista.html";
-        } else if (user.email.includes("entregador")) {
-            window.location.href = "../pages/entregador.html";
-        }else{
-          errorMessage.textContent = "Usuário inválido, utilize um email de entregador ou logista."
-        }
-     }
+     if (logoutButton) {
+        logoutButton.addEventListener('click', function () {
+          console.log('Botão de sair clicado.');
+          if (auth.currentUser) {
+            console.log("Usuario logado:",auth.currentUser)
+              signOut(auth)
+                  .then(() => {
+                      console.log("Log Out executado");
+                      window.location.href = "../pages/login.html";
+                  })
+                  .catch((error) => {
+                      console.error("Erro ao fazer Log Out", error);
+                  });
+          } else {
+              console.log("Usuário não está logado.");
+          }
+        });
+    }
+     onAuthStateChanged(auth, (user) => {
+         if (user) {
+             console.log('Usuário está logado:', user);
+              checkUserRole(user)
+         } else {
+             console.log('Usuário não está logado (dentro do onAuthStateChanged).');
+         }
+     });
+    
+    function checkUserRole(user) {
+            if (user.email.includes("logista")) {
+              window.location.href = "../pages/logista.html";
+            } else if (user.email.includes("entregador")) {
+                window.location.href = "../pages/entregador.html";
+            }else{
+              errorMessage.textContent = "Usuário inválido, utilize um email de entregador ou logista."
+            }
+         }
     // Verificação da página ativa
     const path = window.location.pathname;
     if (path.includes('logista.html')) {
-        setupLogistaDashboard();
+            setupLogistaDashboard();
     } else if (path.includes('entregador.html')) {
-        setupEntregadorDashboard();
+            setupEntregadorDashboard();
     }
 });
 //Funçoes do Logista
