@@ -45,25 +45,28 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     });
     }
-    if (logoutButton) {
-        logoutButton.addEventListener('click', function () {
-            signOut(auth).then(() => {
-                console.log('Usuário deslogado');
-                 window.location.href = "../pages/login.html";
-            }).catch((error) => {
-                console.error('Erro ao deslogar:', error);
-            });
-        });
-    }
+   if (logoutButton) {
+       logoutButton.addEventListener('click', function () {
+           console.log('Botão de sair clicado.'); // Verificando se o botão está sendo clicado
+           signOut(auth).then(() => {
+               console.log('Usuário deslogado (dentro do then)');
+               window.location.href = "../pages/login.html";
+           }).catch((error) => {
+               console.error('Erro ao deslogar:', error);
+           });
+       });
+   }
+
     onAuthStateChanged(auth, (user) => {
-        if(user) {
+      if (user) {
+            console.log('Usuário está logado:', user);
           checkUserRole(user)
-        } else{
-        console.log('Usuário não está logado.');
-        }
-      });
-    
-    function checkUserRole(user) {
+      } else {
+          console.log('Usuário não está logado (dentro do onAuthStateChanged).');
+      }
+    });
+
+function checkUserRole(user) {
         if (user.email.includes("logista")) {
           window.location.href = "../pages/logista.html";
         } else if (user.email.includes("entregador")) {
@@ -71,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }else{
           errorMessage.textContent = "Usuário inválido, utilize um email de entregador ou logista."
         }
-        }
+     }
     // Verificação da página ativa
     const path = window.location.pathname;
     if (path.includes('logista.html')) {
